@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<title>Group Chat UI</title>
+<style>
+  body, html {
+    height: 100%;  
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #ffefd5;
+  }
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 672px;
+    margin: 0 auto;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-left: 30vw;
+    position: relative; /* Add relative positioning */
+}
+
+ 
+.chat-area {
+    padding: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: calc(100% - 40px); /* Set the max-height */
+    transition: max-height 0.3s ease; /* Add a smooth transition */
+}
+.left-panel {
+    width: 16vw; /* Adjust as needed */
+    height: 100%;
+    background-color: #fce8ca; /* Adjust as needed */
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    box-shadow: 3px 0 15px rgba(0,0,0,0.12); /* Adding subtle shadow for depth */
+    height: 92vh;
+  }
+
+ 
+.panel-text {
+  position: absolute;
+  top: 20px; /* Adjust as needed */
+  left: 30px; /* Adjust as needed */
+ 
+}
+
+.toggle-panel-button {
+  position: absolute;
+  top: 10px; /* Adjust as needed */
+  right: 10px; /* Adjust as needed */
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px; /* Adjust as needed */
+  height: 30px; /* Adjust as needed */
+  font-size: 20px; /* Adjust as needed */
+  cursor: pointer;
+}
+  .chat-area {
+    padding: 20px;
+    overflow-y: auto;
+    flex-grow: 1;  
+  }
+ 
+  .chat-message {
+    display: flex;
+    align-items: flex-end;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+  }
+  .message-content {
+    padding: 10px;
+    border-radius: 20px;
+    background-color: #e0e0e0;
+    max-width: calc(100% - 40px);
+    word-wrap: break-word;
+    font-size: 1em;
+  }
+  .user-message .message-content {
+    background-color: #8b4513;
+    color: white;
+    margin-left: auto;
+  }
+  .bot-message .message-content {
+    background-color: #fce8ca;
+    font-size: 1.05em;
+  }
+  .input-form {  
+    padding: 10px;  
+    background-color: #ffefd5; 
+ 
+    margin-bottom: 30px;  
+    position: relative;
+    display: none;
+  } 
+  .input-form input {
+    background-color: #ffefd5; /* Papaya Whip color */
+} 
+  .input-field {
+    flex-grow: 1;
+    padding: 10px;
+    padding-left: 50px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 0.85em;
+    width: 100%;
+  }
+  .send-button {
+    padding: 10px 20px;
+    background-color: #8b4513;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: background-color 0.2s ease;
+  }
+  .send-button:hover {
+    background-color: #a0522d;
+  }
+
+ 
+  /* ... existing styles ... */
+
+  .class-button {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  margin-top: 10px;
+  background-color: transparent;
+  border: none;
+  text-align: left;
+  color: black;
+  font-size: 20px; /* Adjust as needed */
+  text-transform: none; /* Makes the text lowercase */
+  cursor: pointer;
+  margin-left: 2.8vh;
+ 
+}
+
+.class-button:hover {
+  background-color: #8b4513; /* Adjust as needed */
+  width: 80%;
+  border-radius: 20px;
+}
+
+#add-class-button {
+   
+  display: block;
+  width: 52.5%; /* Adjust as needed */
+  padding: 10px;
+  height: 40px;
+  margin: 10px auto; /* Centers the button */
+  background-color: #8b4513;
+  color: #fff;
+  border: none;
+  border-radius: 20px; /* Makes the button rounded */
+  text-align: center;
+  font-size: 16px; /* Adjust as needed */
+  cursor: pointer;
+  margin-top: 7vh;
+  margin-left: 3.25vh;
+  margin-bottom: 5vh;
+}
+
+#add-class-button:hover {
+  background-color: #a0522d; /* Adjust as needed */
+  
+}
+
+#class-input {
+  display: none; /* Initially hidden */
+  width: 60%; /* Adjust as needed */
+  padding: 10px;
+  margin: 10px auto; /* Centers the input field */
+  background-color: #ffefd5;
+  color: #000;
+  border-color: #8b4513;
+  border: 1px solid #000; /* Adds a border */
+  border-radius: 20px; /* Makes the input field rounded */
+  font-size: 15px; /* Adjust as needed */
+  margin-left: 3.25vh;
+}
+
+.active-class {
+  display: block;
+  width: 80%;
+  border-radius: 20px;
+  padding: 15px;
+  margin-top: 10px;
+  background-color: #ffe4b5;
+  border: none;
+  text-align: left;
+  color: black;
+  font-size: 20px; /* Adjust as needed */
+  text-transform: none; /* Makes the text lowercase */
+  cursor: pointer;
+  margin-left: 2.8vh;
+}
+.switch {
+  position: fixed;
+  top: 78vh;
+  left: 3vw; 
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #bbbbbb;
+  transition: .1s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: rgb(169, 169, 169);
+  transition: .1s;
+}
+
+input:checked + .slider {
+  background-color: #45a049;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #45a049;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+ 
+
+
+  .modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+img {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+}
+
+#mind-map-img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.switch-text {
+  position: fixed;
+  top: 83.5vh;
+  left: 3vw; /* Adjust as needed */
+  font-size: 1em; /* Adjust as needed */
+}
+
+#welcomePopup {
+  position:fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ffefd5;
+  padding: 20px;
+  border-radius: 40px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  z-index: 1001;
+  width: 85%;
+  height: 85%;
+  overflow: hidden;
+}
+.popup-content {
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+
+}
+.left-text {
+  width: 40%; /* Set the width of the left text chunk to 50% */
+  text-align: left; /* Align the text to the left */
+  margin-left: 5vw;
+  font-family: Arial, sans-serif;
+  margin-top: 10vh;
+  font-weight: normal;
+ 
+}
+.left-text h2 {
+  font-size: 3em;
+ 
+}
+.left-text h3 {
+  margin-top: 10vh;
+  font-size: 2em;
+ 
+}
+.left-text p {
+  margin-top: 2vh;
+  font-size: 1.4em;
+}
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.right-signin {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding-right: 6vw;
+
+}
+.right-signin input, .right-signin button {
+  width: 80%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 20px;
+  border: none;
+  font-size: 1em;
+}
+.right-signin button {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+}
+.right-signin button:hover {
+  background-color: #45a049;
+}
+
+ 
+
+ 
+</style>
+</head>
+<body>
+ 
+  <div class="left-panel">
+    <button id="mind-map-btn" class="class-button"> </button>
+    <button id="add-class-button">New Class</button>
+    <input type="text" id="class-input" placeholder="Enter class name..." style="display: none;">
+    <input type="text" id="class-inputdev" placeholder="Enter class name..." style="display: none;">
+    <div id="classes-container"></div>
+  
+  </div>
+  <div id="mind-map-modal" class="modal">
+    <img id="mind-map-img" src="{{ url_for('static', filename='vectors_mind_map.png') }}" alt="Mind Map" />
+    <span id="close-modal" style="cursor:pointer;position:absolute;top:50vh;font-size:24px;">&times;</span>
+  </div>
+<div class="chat-container">
+
+ 
+  <div class="chat-area" id="chatArea">
+  </div>
+  <form class="input-form" id="inputForm">
+    <label class="switch">
+      <input type="checkbox">
+      <span class="slider round"></span>
+      <soan class="switch-text">Revision Mode</soan>
+    </label>
+    <input type="text" class="input-field" id="inputField">
+    <button type="submit" class="send-button">Send</button>
+  </form>
+</div>
+
+<div id="overlay" style="display: none;"></div>
+<div id="welcomePopup" style="display: none;">
+  <div class="popup-content">
+    <div class="left-text">
+      <h2>Welcome!</h2>
+      <h3>How it works:</h3>
+      <p>When you create a new class, hazel ai is aware of everything that you hear in realtime. </p>
+      <p>For example, you can ask any clarifying questions over a lecture that you are attending.  </p>
+    </div>
+    <div class="right-signin"> <!-- Add this div for the sign-in UI -->
+      <input type="text" id="username" placeholder="Email">
+      <input type="password" id="password" placeholder="Password">
+      <button id="signin">Sign In</button>
+    </div>
+ 
+  </div>
+</div>
+
+<script>
+
+localStorage.clear();
+
+
+ 
+
+ 
+window.onload = function() {
+  if (localStorage.getItem("popupSeen") !== "true") {
+    document.getElementById("welcomePopup").style.display = "block";
+    document.getElementById("overlay").style.display = "block";
+    localStorage.setItem("popupSeen", "true");
+
+  }
+  document.getElementById("signin").addEventListener("click", function() {
+    document.getElementById("welcomePopup").style.display = "none";
+    document.getElementById("overlay").style.display = "none";
+  })
+}
+
+document.getElementById("signin").addEventListener("click", function() {
+
+  var username = document.getElementById("username").value;
+  var password = document.getElementById("password").value;
+
+  var body = {
+    username: username,
+    password: password
+  };
+
+  fetch("/gunicorn", {
+    method: "POST", 
+    headers: {
+      "content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  })
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch((error) => {
+    console.error("error", error);
+  });
+
+  console.log(body);
+});
+ 
+
+ 
+
+
+
+ 
+function updateChatUI(visible) {
+  const inputForm = document.getElementById('inputForm');
+  inputForm.style.display = visible ? 'flex' : 'none';
+  console.log(`Chat UI visibility set to: ${visible}`);
+
+
+}
+
+
+document.getElementById('mind-map-btn').addEventListener('click', async function() {
+  try {
+    const data = { message: "hello" };
+    let value = localStorage.getItem(`transcript_${currentClass}`) || ".";
+
+    fetch('/image-gen', {
+      method: 'POST',  
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        transcript: value
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      const imgSrc = 'data:image/png;base64,' + data.image;
+      document.getElementById('mind-map-img').src = imgSrc;
+      document.getElementById('mind-map-modal').style.display = 'block';
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+});
+
+document.getElementById('close-modal').addEventListener('click', function() {
+  document.getElementById('mind-map-modal').style.display = 'none';
+});
+
+window.onclick = function(event) {
+  if (event.target == document.getElementById('mind-map-modal')) {
+    document.getElementById('mind-map-modal').style.display = 'none';
+  }
+}
+
+    document.querySelector('.switch input').addEventListener('change', function() {
+        if (this.checked) {
+            console.log('Button toggled on');
+            appendMessage(`\n\n\nRevision Mode activated! I now have a fresh understanding of your recent ${currentClass} lecture. \n\nI'm ready to help you: \n\nGet notes from today's class. \nTest your recall of the main points from today's class. \nBreak down any complex ideas. \n\nTry asking: "Quiz me on everything we learned today"`, 'bot-message');
+            
+        } else {
+            console.log('Button toggled off');
+ 
+        }
+    });
+
+
+    let mediaRecorder;
+    let recordedChunks = [];
+    let recordingInterval;
+
+
+    const startRecording = async () => {
+      try {
+        console.log("sent");
+        const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(micStream);
+        mediaRecorder.ondataavailable = async (event) => {
+          recordedChunks = [event.data]; // overwrite recordedChunks with the most recent chunk
+          await transcribeRecording(); // transcribe every time new data is available
+        };
+        mediaRecorder.start();
+        recordingInterval = setInterval(() => {
+          if (mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+            mediaRecorder.start();
+          }
+        }, 7000); // stop and start recording every 10 seconds
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    startRecording();
+
+    const transcribeRecording = async () => {
+      if (recordedChunks.length > 0) {
+        const recordedBlob = new Blob(recordedChunks, { type: "audio/webm" });
+        const arrayBuffer = await new Response(recordedBlob).arrayBuffer();
+        const response = await fetch("/transcribe", {
+          method: "POST",
+          body: arrayBuffer,
+        });
+        const result = await response.json();
+        console.log("Transcription result:", result.text);
+        console.log("currentClass:", currentClass);
+
+        let key = `transcript_${currentClass}`;
+        let existing = localStorage.getItem(key);
+        let newTranscript = existing ? existing + ' ' + result.text : result.text;
+
+       
+        if (newTranscript.length > 250000) {
+            newTranscript = newTranscript.slice(-25000);
+        }
+        console.log(newTranscript);
+
+        localStorage.setItem(key, newTranscript);
+                
+
+      } else {
+        console.log("No recording available to transcribe.");
+      }
+    };
+  
+
+ 
+ 
+
+    
+ 
+
+    const chatArea = document.getElementById('chatArea');
+    const inputForm = document.getElementById('inputForm');
+    const inputField = document.getElementById('inputField');
+    let currentClass = null;
+
+
+ 
+    
+    function removeLastMessage() {
+    if (chatArea.lastChild) {
+        chatArea.removeChild(chatArea.lastChild);
+    }
+}
+    
+ 
+    inputForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        let message = inputField.value.trim();
+        if (message) {
+        function appendValue() {
+            var existingValue = JSON.parse(localStorage.getItem(`class_${currentClass}`));
+            console.log('started');
+
+            if (existingValue === null) {
+            existingValue = [];
+            }
+
+            var newValue = {
+            "medium": "user-message",
+            "content": message  
+            };
+
+            existingValue.push(newValue);
+            while (existingValue.length > 14) {
+            existingValue.splice(0, 1);
+            }
+
+            localStorage.setItem(`class_${currentClass}`, JSON.stringify(existingValue));
+            console.log('Value appended to localStorage');
+            console.log(JSON.stringify(existingValue));
+            console.log(`class_${currentClass}`)
+        }
+        appendValue();
+
+        message = message.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        appendMessage(message, 'user-message');
+        inputField.value = '';
+
+        let value = localStorage.getItem(`transcript_${currentClass}`) || ".";
+        var existingValue = JSON.parse(localStorage.getItem(`class_${currentClass}`));
+
+        console.log(existingValue);
+        console.log(value);
+        console.log(existingValue);
+
+        let buttonToggledOn = document.querySelector('.switch input').checked;
+        let varx = buttonToggledOn ? "yes" : "no"; // Add this line
+        console.log(varx);
+
+
+        const response = await fetch("/process-input", {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ 
+              messages: [{ role: "user", content: message }],
+              list: existingValue,
+              message: message,
+              transcript: value,
+
+              button_status: varx,
+          
+            }),
+        });
+
+        const decoder = new TextDecoder();
+
+    
+        const reader = response.body.getReader();
+        let chunks = "";
+
+
+        let lastMessage = null;
+
+            while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            let chunk = decoder.decode(value);
+            chunks += chunk;
+
+            if (lastMessage) {
+                lastMessage.remove(); // Remove the last message from the chat area
+            }
+
+            lastMessage = appendMessage(chunks, "bot-message"); // Append the new message and keep a reference to it
+            }
+            console.log(chunks);
+
+
+            function appendValue2() {
+              var existingValue = JSON.parse(localStorage.getItem(`class_${currentClass}`));
+
+
+              if (existingValue === null) {
+                existingValue = [];
+              }
+
+              var newValue = {
+                "medium": "bot-message",
+                "content": chunks,
+              };
+
+              while (existingValue.length > 14) {
+                existingValue.splice(0, 1);
+              }
+
+            existingValue.push(newValue);
+
+            localStorage.setItem(`class_${currentClass}`, JSON.stringify(existingValue));
+            console.log('Value appended to localStorage');
+            console.log(JSON.stringify(existingValue));
+            console.log(`class_${currentClass}`)
+          }
+          appendValue2();
+
+        
+    }
+    });
+   
+
+    
+
+
+function appendMessage(text, className) {
+  const messageDiv = document.createElement('div');
+  const contentDiv = document.createElement('div');
+  text = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  contentDiv.innerHTML = text;
+  contentDiv.classList.add('message-content');
+  messageDiv.classList.add('chat-message', className);
+  messageDiv.appendChild(contentDiv);
+  chatArea.appendChild(messageDiv);
+  chatArea.scrollTop = chatArea.scrollHeight;
+  MathJax.typesetPromise();
+
+  // Return the created message element
+  return messageDiv;
+}
+
+document.getElementById('add-class-button').addEventListener('click', function() {
+      var inputField = document.getElementById('class-input');
+      inputField.style.display = 'block';
+    }); 
+ 
+    document.getElementById('class-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        console.log('Enter key pressed');
+        var className = e.target.value;
+        var newClass = document.createElement('button');
+        newClass.textContent = className;
+        newClass.className = 'class-button';
+      
+        var classNameToAdd = className;
+
+         
+        var classes = localStorage.getItem('classes') || '';
+
+         
+        if (typeof classes !== 'string') {
+          classes = '';
+        }
+
+        
+        classes += (classes ? ',' : '') + classNameToAdd;
+
+         
+        localStorage.setItem('classes', classes);
+        console.log('New class added: ' + classNameToAdd);
+
+        
+        classes = localStorage.getItem('classes');
+
+         
+        if (typeof classes === 'string' && classes.trim() !== '') {
+          classes.split(',').forEach(function(className) {
+            console.log(className.trim());
+          });
+        } else {
+          console.log('No classes found.');
+        }
+ 
+
+        newClass.addEventListener('click', function() {
+          currentClass = className;
+          highlightCurrentClassButton(newClass);
+          switchClass(className);
+          updateChatUI(true);
+          
+
+        });
+    document.getElementById('classes-container').appendChild(newClass);
+ 
+
+        e.target.value = '';
+        e.target.style.display = 'none';
+      }
+    });
+ 
+    document.getElementById('class-inputdev').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        var className = e.target.value;
+        var newClass = document.createElement('button');
+        newClass.textContent = className;
+        newClass.className = 'class-button';
+      
+        var classNameToAdd = className;
+
+         
+        var classes = localStorage.getItem('classes') || '';
+
+         
+        if (typeof classes !== 'string') {
+          classes = '';
+        }
+
+   
+        
+        classes = localStorage.getItem('classes');
+
+        // Ensure 'classes' is a string
+        if (typeof classes === 'string' && classes.trim() !== '') {
+          classes.split(',').forEach(function(className) {
+            console.log(className.trim());
+          });
+        } else {
+          console.log('No classes found.');
+        }
+
+    
+ 
+
+    newClass.addEventListener('click', function() {
+      currentClass = className;
+
+      highlightCurrentClassButton(newClass);
+      switchClass(className);
+      console.log('Class switched to: ' + className);
+      updateChatUI(true);
+
+    });
+
+    document.getElementById('classes-container').appendChild(newClass);
+ 
+
+        e.target.value = '';
+        e.target.style.display = 'none';
+      }
+    });
+ 
+     
+
+
+  document.addEventListener('DOMContentLoaded', function () {
+
+
+ 
+      const classInput = document.getElementById('class-inputdev');
+
+
+      
+
+      var classes = localStorage.getItem("classes");
+
+      if (typeof classes == "string" && classes.trim() !== "") {
+
+        var classArray = classes.split(',');
+
+        if (classArray.length > 0) {
+          for (let i = 0; i < classArray.length; i++) {
+            let classVal = classArray[i].trim();
+            if (typeof classVal !== 'undefined' && classVal !== '') {
+              classInput.value = '';
+              classInput.value = classVal;
+
+              console.log(classVal);
+
+              const enterKeyPressEvent = new KeyboardEvent('keypress', {
+                key: 'Enter',
+              });
+              classInput.dispatchEvent(enterKeyPressEvent);
+            }
+          }
+        } else {
+          console.log("No classes found.");
+        }
+      } else {
+        console.log("No classes found");
+      }
+});
+
+
+ 
+
+
+
+     
+
+
+    var firstButtonCreated = false;
+
+    function switchClass(className) {
+      currentClass = className;
+      
+
+      chatArea.innerHTML = '';
+
+   
+
+      let existingValueRaw = localStorage.getItem(`class_${currentClass}`);
+      if (!existingValueRaw) {
+        console.log(`No existing value for class_${currentClass}`);
+        return; // Exit the function if there's nothing stored
+      }
+
+      let existingValue = JSON.parse(existingValueRaw);
+
+      // Further safety checks after parsing if needed
+      if (!existingValue || !Array.isArray(existingValue) || existingValue.length === 0) {
+        console.log(`Parsed value is not an array or is empty for class_${currentClass}`);
+        return; // Exit the function if parsed value isn't as expected
+      }
+
+
+      var fourthLastElement = existingValue[existingValue.length - 8];  
+
+      if (fourthLastElement && fourthLastElement.hasOwnProperty('content')) {
+        var contentString = fourthLastElement['content'];  
+        var messageType = fourthLastElement["medium"];
+        appendMessage(contentString, messageType);
+      }
+
+
+      var fourthLastElement = existingValue[existingValue.length - 7];  
+
+      if (fourthLastElement && fourthLastElement.hasOwnProperty('content')) {
+        var contentString = fourthLastElement['content'];  
+        var messageType = fourthLastElement["medium"];
+        appendMessage(contentString, messageType);
+      }
+
+
+      var fourthLastElement = existingValue[existingValue.length - 6];  
+
+      if (fourthLastElement && fourthLastElement.hasOwnProperty('content')) {
+        var contentString = fourthLastElement['content'];  
+        var messageType = fourthLastElement["medium"];
+        appendMessage(contentString, messageType);
+      }
+
+      var fourthLastElement = existingValue[existingValue.length - 5];  
+
+      if (fourthLastElement && fourthLastElement.hasOwnProperty('content')) {
+        var contentString = fourthLastElement['content'];  
+        var messageType = fourthLastElement["medium"];
+        appendMessage(contentString, messageType);
+      }
+
+      var fourthLastElement = existingValue[existingValue.length - 4];  
+
+      if (fourthLastElement && fourthLastElement.hasOwnProperty('content')) {
+        var contentString = fourthLastElement['content'];  
+        var messageType = fourthLastElement["medium"];
+        appendMessage(contentString, messageType);
+      }
+
+
+      var thirdLastElement = existingValue[existingValue.length - 3]; 
+
+      if (thirdLastElement && thirdLastElement.hasOwnProperty('content')) {
+        var contentString = thirdLastElement['content']; 
+        var messageType = thirdLastElement["medium"];
+        appendMessage(contentString, messageType);
+      }
+
+
+      var secondLastElement = existingValue[existingValue.length - 2];  
+
+      if (secondLastElement && secondLastElement.hasOwnProperty('content')) {
+        var contentString = secondLastElement['content'];  
+        var messageType = secondLastElement["medium"];
+        appendMessage(contentString, messageType);
+      }
+
+      
+      
+ 
+      var lastElement = existingValue[existingValue.length - 1];  
+
+      if (lastElement && lastElement.hasOwnProperty('content')) {
+        var contentString = lastElement['content']; 
+        var messageType = lastElement["medium"];
+        appendMessage(contentString, messageType);
+        
+      }
+
+    
+ 
+    }
+
+ 
+
+ 
+
+    document.addEventListener('click', function(e) {
+      var inputField = document.getElementById('class-input');
+      var addButton = document.getElementById('add-class-button');
+
+      if (e.target !== inputField && e.target !== addButton) {
+        inputField.style.display = 'none';
+      }
+    });
+
+    function highlightCurrentClassButton(activeButton) {
+      // Remove the highlight from all class buttons
+      var classButtons = document.getElementsByClassName('class-button');
+      for (var i = 0; i < classButtons.length; i++) {
+        classButtons[i].classList.remove('active-class');
+      }
+      // Highlight the active class button
+      activeButton.classList.add('active-class');
+    }
+
+  setInterval(function() {
+    var existingValue = JSON.parse(localStorage.getItem(`class_${currentClass}`));
+
+    fetch('/storage', {
+        method: 'POST', 
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ existingValue: existingValue }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+
+    console.log(existingValue);
+}, 1800000); 
+
+
+if (currentClass !== null && currentClass !== '') {
+    console.log(`Current class: ${currentClass}`);
+} else {
+    console.log("No current class");
+}
+
+
+
+
+
+ 
+
+
+</script>
+
+</body>
+</html>
